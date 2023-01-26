@@ -1,5 +1,8 @@
-import User, { IUser } from "./../models/user.model";
+import { nanoid } from "nanoid";
+
+import User from "./../models/user.model";
 import CloudinaryUtil from "../utils/cloudinary";
+import { APP_NAME, APP_LOGO, MAILER } from "../config";
 import CustomError from "./../utils/graphql/custom-error";
 
 import type { UploadApiResponse } from "cloudinary";
@@ -11,6 +14,22 @@ class UserService {
         }
 
         return await new User(data).save();
+    }
+
+    async createSystemUser() {
+        const existingUser = await User.findOne({ role: "system" });
+        if (existingUser) throw new CustomError("System user already exists");
+
+        const user = await new User({
+            name: APP_NAME,
+            role: "system",
+            image: APP_LOGO,
+            username: APP_NAME,
+            password: nanoid(32),
+            email: "noreply" + MAILER.DOMAIN
+        }).save();
+
+        return user;
     }
 
     async getAll(pagination: PaginationInput) {
@@ -57,6 +76,11 @@ class UserService {
         return user;
     }
 
+    async getSystemUser() {
+        const user = await User.findOne({ role: "system" }, { password: 0, __v: 0 });
+        if (!user) return await this.createSystemUser();
+    }
+        
     async getByUsername(username: string) {
         const user = await User.findOne({ username }, { password: 0, __v: 0 });
         if (!user) throw new CustomError("user does not exist");

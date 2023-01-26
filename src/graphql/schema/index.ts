@@ -73,6 +73,15 @@ const typeDefs = gql`
         business: Business
     }
 
+    type Notification {
+        id: ID!
+        title: String!
+        message: String!
+        readAt: String
+        receiver: User!
+        source: PublicUser!
+    }
+
     type AuthPayload {
         user: User!
         token: AuthTokens!

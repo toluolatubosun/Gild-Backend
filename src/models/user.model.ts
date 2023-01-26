@@ -10,7 +10,7 @@ export interface IUser extends mongoose.Document {
     stripeAccountId: string;
     password: string;
     image: string;
-    role: "user" | "business" | "admin";
+    role: "user" | "business" | "admin" | "system";
     isVerified: boolean;
     isActive: boolean;
     createdAt: Date;
@@ -53,7 +53,7 @@ const userSchema: mongoose.Schema = new mongoose.Schema(
             type: String,
             required: true,
             trim: true,
-            enum: ["user", "business", "admin"],
+            enum: ["user", "business", "admin", "system"],
             default: "user"
         },
         isActive: {

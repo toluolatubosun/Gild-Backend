@@ -1,5 +1,6 @@
+export const APP_NAME = "Gild";
 export const PORT = process.env.PORT || 8080;
-export const APP_NAME = "gild";
+export const APP_LOGO = "https://picsum.photos/200/300";
 export const NODE_ENV = process.env.NODE_ENV || "development";
 export const CLOUDINARY_URL = process.env.CLOUDINARY_URL || "";
 export const BCRYPT_SALT = Number(process.env.BCRYPT_SALT) || 10;

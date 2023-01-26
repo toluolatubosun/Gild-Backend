@@ -7,7 +7,7 @@ import User from "./../models/user.model";
 import Token from "./../models/token.model";
 import MailService from "./../services/mail.service";
 import CustomError from "../utils/graphql/custom-error";
-import { JWT_SECRET, BCRYPT_SALT, URL } from "./../config";
+import { APP_NAME, JWT_SECRET, BCRYPT_SALT, URL } from "./../config";
 
 class AuthService {
     async register(data: RegisterInput) {
@@ -17,6 +17,10 @@ class AuthService {
         if (!data.email) throw new CustomError("email is required");
         if (!data.username) throw new CustomError("username is required");
         if (!data.password) throw new CustomError("password is required");
+
+        // Validate username
+        if (data.username.toLowerCase() === APP_NAME) throw new CustomError("invalid username");
+        if (!/^[a-zA-Z0-9_-]{3,20}$/.test(data.username)) throw new CustomError("invalid username");
 
         if (!data.role) throw new CustomError("role is required");
         if (!["user", "business"].includes(data.role)) throw new CustomError("invalid role");
