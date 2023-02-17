@@ -96,7 +96,7 @@ class WalletService {
             message: "dummy notification dummy notification dummy notification",
             sourceId: "system",
             receiverId: sender.id
-        })
+        });
 
         return true;
     }

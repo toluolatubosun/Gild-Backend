@@ -141,7 +141,7 @@ class NotificationService {
                     if (!isValidObjectId(notificationId)) throw new CustomError("Invalid Notification ID");
                     await Notification.deleteOne({ _id: notificationId }, { session });
                 })
-            )
+            );
         });
     }
 }
