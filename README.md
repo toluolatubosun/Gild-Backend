@@ -18,7 +18,6 @@ According to this post by the Apollo Team on [GraphQL File Upload](https://www.a
 If you really want to implement files upload you can follow this example by in Apollo Docs that makes used of `graphql-upload` [Here](https://www.apollographql.com/docs/apollo-server/data/file-uploads/)<br>
 In this example for file uploads are implemented using Cloudinary and the data is sent as a base64 string instead of a file in a multi-part form.
 
-
 ## Development with Local MongoDB Server
 
 If you are making use of a mongoDB server locally you need to initialize a replica set in order to use transactions. You can do this by running the following command in your terminal:

@@ -26,4 +26,3 @@ interface CompleteTransferArgs {
     amount: number;
     receiverId: string;
 }
-

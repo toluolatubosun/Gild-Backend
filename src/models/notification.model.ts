@@ -1,5 +1,15 @@
 import mongoose from "mongoose";
 
+export interface INotification extends mongoose.Document {
+    title: string;
+    message: string;
+    readAt: Date;
+    receiverId: string;
+    sourceId: string;
+    updatedAt: Date;
+    createdAt: Date;
+}
+
 const notificationSchema = new mongoose.Schema(
     {
         title: {
@@ -22,20 +32,20 @@ const notificationSchema = new mongoose.Schema(
         },
 
         // Relationship
-        receiver: {
+        receiverId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "user",
             required: true
         },
-        source: {
+        sourceId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "user",
             required: true
-        },
+        }
     },
     {
         timestamps: true
     }
 );
 
-export default mongoose.model("notification", notificationSchema);
+export default mongoose.model<INotification>("notification", notificationSchema);

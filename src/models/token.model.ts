@@ -29,7 +29,7 @@ const tokenSchema: mongoose.Schema = new mongoose.Schema({
         expires: 60 // 1 minutes grace period
     },
 
-    // Optional Additional Data
+    // Extra Data for Gild Transfer
     gildTransfer: {
         type: {
             receiverId: {

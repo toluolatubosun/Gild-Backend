@@ -6,6 +6,8 @@ export interface IBusiness extends mongoose.Document {
     state: string;
     country: string;
     industry: string;
+    updatedAt: Date;
+    createdAt: Date;
 }
 
 const businessSchema: mongoose.Schema = new mongoose.Schema(

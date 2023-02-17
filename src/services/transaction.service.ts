@@ -25,19 +25,20 @@ class TransactionService {
 
     async transferInLast24Hours(userId: string) {
         const last24Hours = await Transaction.find({
+            action: "transfer",
             "transferInfo.senderId": userId,
             createdAt: { $gte: new Date(new Date().getTime() - ms("24h")) }
-        })
+        });
 
-        const amounts = last24Hours.map((transaction) => transaction.transferInfo.amount)
+        const amounts = last24Hours.map((transaction) => (transaction.transferInfo ? transaction.transferInfo.amount : 0));
         const totalAmount = amounts.reduce((a, b) => a + b, 0);
 
         return {
             totalAmount,
-            count: last24Hours.length,
+            count: last24Hours.length
         };
     }
-    
+
     // TODO :: Deposit
 
     // TODO :: Withdrawal

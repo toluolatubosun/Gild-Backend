@@ -11,7 +11,10 @@ const typeDefs = gql`
 
         walletGetOne: Wallet!
         walletGetMine: Wallet!
-        wallets(pagination: PaginationInput!): WalletPayload!
+        wallets(pagination: PaginationInput!): WalletsPayload!
+
+        notifications(pagination: PaginationInput!): NotificationsPayload!
+        notificationGetAllMine(pagination: PaginationInput!): NotificationsPayload!
     }
 
     type Mutation {
@@ -103,8 +106,13 @@ const typeDefs = gql`
         pagination: PaginationPayload!
     }
 
-    type WalletPayload {
+    type WalletsPayload {
         wallets: [Wallet!]!
+        pagination: PaginationPayload!
+    }
+
+    type NotificationsPayload {
+        notifications: [Notification!]!
         pagination: PaginationPayload!
     }
 
@@ -153,8 +161,9 @@ const typeDefs = gql`
 
     enum Role {
         user
-        business
         admin
+        system
+        business
     }
 `;
 

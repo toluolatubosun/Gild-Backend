@@ -18,7 +18,6 @@ const useTransaction = async (callback: Function) => {
     } finally {
         session.endSession();
     }
-}
-
+};
 
 export default useTransaction;

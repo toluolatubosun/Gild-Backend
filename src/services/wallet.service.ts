@@ -68,6 +68,7 @@ class WalletService {
 
     async initializeTransfer(senderId: string, receiverId: string, amount: number) {
         const { default: UserService } = await import("./user.service");
+        const { default: NotificationService } = await import("./notification.service");
 
         const sender = await UserService.getOne(senderId);
 
@@ -89,7 +90,14 @@ class WalletService {
 
         // await new MailService(sender).sendTransferOTP(OTP);
         console.log(`OTP: ${OTP}`);
-        
+
+        await NotificationService.create({
+            title: "Hello world",
+            message: "dummy notification dummy notification dummy notification",
+            sourceId: "system",
+            receiverId: sender.id
+        })
+
         return true;
     }
 
@@ -110,8 +118,8 @@ class WalletService {
         const token = await Token.findOne({
             userId: senderId,
             type: "transfer_gild",
-            "gildTransfer.amount": data.amount, 
-            "gildTransfer.receiverId": data.receiverId 
+            "gildTransfer.amount": data.amount,
+            "gildTransfer.receiverId": data.receiverId
         });
         if (!token) throw new CustomError("transfer cannot be completed");
 
@@ -122,7 +130,7 @@ class WalletService {
 
         const last24Hours = await TransactionService.transferInLast24Hours(senderId);
         if (last24Hours.count >= 3) throw new CustomError("you have reached the maximum number of transfers per day");
-        if (last24Hours.totalAmount + data.amount > 1000) throw new CustomError("you have reached the maximum amount of transfers per day")
+        if (last24Hours.totalAmount + data.amount > 1000) throw new CustomError("you have reached the maximum amount of transfers per day");
 
         await useTransaction(async (session: ClientSession) => {
             await Wallet.findOneAndUpdate({ _id: senderWallet.id }, { balance: senderWallet.balance - data.amount }, { session });

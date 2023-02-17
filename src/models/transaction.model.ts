@@ -2,11 +2,15 @@ import mongoose from "mongoose";
 
 export interface ITransaction {
     action: "deposit" | "withdrawal" | "transfer";
-    transferInfo: {
+    transferInfo?: {
         amount: number;
         senderId: string;
         receiverId: string;
-    }
+    };
+    depositInfo?: {
+        userId: string;
+        stripePaymentId: string;
+    };
 }
 
 const transactionSchema = new mongoose.Schema(

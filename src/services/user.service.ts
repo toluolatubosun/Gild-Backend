@@ -18,7 +18,7 @@ class UserService {
 
     async createSystemUser() {
         const existingUser = await User.findOne({ role: "system" });
-        if (existingUser) throw new CustomError("System user already exists");
+        if (existingUser) return existingUser;
 
         const user = await new User({
             name: APP_NAME,
@@ -78,9 +78,11 @@ class UserService {
 
     async getSystemUser() {
         const user = await User.findOne({ role: "system" }, { password: 0, __v: 0 });
+
         if (!user) return await this.createSystemUser();
+        else return user;
     }
-        
+
     async getByUsername(username: string) {
         const user = await User.findOne({ username }, { password: 0, __v: 0 });
         if (!user) throw new CustomError("user does not exist");
