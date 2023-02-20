@@ -18,7 +18,7 @@ import type { Application } from "express";
 const CORS_SETTINGS = {
     credentials: true,
     exposedHeaders: ["set-cookie"],
-    origin: ["http://localhost:3000", "https://gild.com", "https://plugtent.com"]
+    origin: ["http://localhost:3000", "https://gild.com"]
 };
 
 export default async (app: Application, httpServer: Server) => {
