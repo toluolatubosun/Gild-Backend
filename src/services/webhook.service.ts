@@ -12,6 +12,8 @@ class WebhookService {
     }
 
     async stripe(data: any, headers: any) {
+        const { default: WalletService } = await import("./wallet.service");
+
         const signature = headers["stripe-signature"];
         const event = await StripeUtil.constructWebhookEvent(data, signature);
 
@@ -24,8 +26,7 @@ class WebhookService {
                 if (metadata.node_env !== NODE_ENV && metadata.source !== APP_NAME) return true;
 
                 if (metadata.action === "gild_purchase" && status === "succeeded") {
-                    // TODO
-                    // .....
+                    await WalletService.completeDeposit(metadata, paymentIntentId);
                     await StripeUtil.removeCustomerDuplicateCards(metadata.customer_id);
                 }
 

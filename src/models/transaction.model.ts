@@ -29,8 +29,25 @@ const transactionSchema = new mongoose.Schema(
                     required: true,
                     ref: "user"
                 },
+                walletId: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    required: true,
+                    ref: "wallet"
+                },
                 stripePaymentId: {
                     type: String,
+                    required: true
+                },
+                amount: {
+                    type: Number,
+                    required: true
+                },
+                currency: {
+                    type: String,
+                    required: true
+                },
+                price: {
+                    type: Number,
                     required: true
                 }
             },
@@ -38,7 +55,25 @@ const transactionSchema = new mongoose.Schema(
         },
 
         // Withdrawal
-        // TODO
+        withdrawalInfo: {
+            type: {
+                userId: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    required: true,
+                    ref: "user"
+                },
+                walletId: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    required: true,
+                    ref: "wallet"
+                },
+                amount: {
+                    type: Number,
+                    required: true
+                }
+            },
+            required: false
+        },
 
         // Transfer
         transferInfo: {

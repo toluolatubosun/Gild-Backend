@@ -9,6 +9,10 @@ export default {
         const user = guard(context.user, ROLE.USER);
         return await WalletService.initializeTransfer(user.id, receiverId, amount);
     },
+    walletInitializeDeposit: async (_: any, { amount, currencyCode }: InitializeDepositArgs, context: Context): Promise<String> => {
+        const user = guard(context.user, ROLE.USER);
+        return await WalletService.initializeDeposit(user.id, amount, currencyCode);
+    },
     walletCompleteTransfer: async (_: any, { receiverId, amount, OTP }: CompleteTransferArgs, context: Context): Promise<Boolean> => {
         const user = guard(context.user, ROLE.USER);
         return await WalletService.completeTransfer(user.id, { receiverId, amount, OTP });

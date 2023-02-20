@@ -23,6 +23,45 @@ class TransactionService {
         return transfer;
     }
 
+    async recordDeposit(data: DepositRecordInput, session?: ClientSession) {
+        if (!data.price) throw new CustomError("price not found");
+        if (!data.amount) throw new CustomError("amount not found");
+        if (!data.userId) throw new CustomError("userId not found");
+        if (!data.walletId) throw new CustomError("walletId not found");
+        if (!data.currency) throw new CustomError("currency not found");
+        if (!data.stripePaymentId) throw new CustomError("stripePaymentId not found");
+
+        const deposit = await new Transaction({
+            action: "deposit",
+            depositInfo: {
+                price: data.price,
+                amount: data.amount,
+                userId: data.userId,
+                currency: data.currency,
+                stripePaymentId: data.stripePaymentId
+            }
+        }).save({ session });
+
+        return deposit;
+    }
+
+    async recordWithdrawal(data: WithdrawalRecordInput, session?: ClientSession) {
+        if (!data.amount) throw new CustomError("amount not found");
+        if (!data.userId) throw new CustomError("userId not found");
+        if (!data.walletId) throw new CustomError("walletId not found");
+
+        const withdrawal = await new Transaction({
+            action: "withdrawal",
+            withdrawalInfo: {
+                amount: data.amount,
+                userId: data.userId,
+                walletId: data.walletId
+            }
+        }).save({ session });
+
+        return withdrawal;
+    }
+
     async transferInLast24Hours(userId: string) {
         const last24Hours = await Transaction.find({
             action: "transfer",
@@ -38,10 +77,6 @@ class TransactionService {
             count: last24Hours.length
         };
     }
-
-    // TODO :: Deposit
-
-    // TODO :: Withdrawal
 }
 
 export default new TransactionService();

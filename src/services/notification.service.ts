@@ -8,7 +8,7 @@ import CustomError from "../utils/graphql/custom-error";
 import type { ClientSession } from "mongoose";
 
 class NotificationService {
-    async create(data: NotificationCreateInput) {
+    async create(data: NotificationCreateInput, session?: ClientSession) {
         const { default: UserService } = await import("./user.service");
 
         if (!data.title) throw new CustomError("title is required");
@@ -21,7 +21,7 @@ class NotificationService {
             data.sourceId = systemUser.id;
         }
 
-        const notification = await new Notification({ ...data, expiresAt: Date.now() + ms("120 days") }).save();
+        const notification = await new Notification({ ...data, expiresAt: Date.now() + ms("120 days") }).save({ session });
 
         return notification;
     }

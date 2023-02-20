@@ -13,6 +13,9 @@ const typeDefs = `#graphql
 
         notifications(pagination: PaginationInput!): NotificationsPayload!
         notificationGetAllMine(pagination: PaginationInput!): NotificationsPayload!
+
+        currencies: [Currency!]!
+        currencyGetByCode(code: String!): Currency!
     }
 
     type Mutation {
@@ -32,6 +35,7 @@ const typeDefs = `#graphql
         userUpdate(userId: ID!, input: UserDataInput!): User!
 
         walletInitializeTransfer(receiverId: String!, amount: Int!): Boolean!
+        walletInitializeDeposit(amount: Int!, currencyCode: String!): String!
         walletCompleteTransfer(receiverId: String!, amount: Int!, OTP: String!): Boolean!
     }
 
@@ -81,6 +85,14 @@ const typeDefs = `#graphql
         readAt: String
         receiver: User!
         source: PublicUser!
+    }
+
+    type Currency {
+        id: ID!
+        name: String!
+        code: String!
+        gildRate: Float!
+        isZeroDecimal: Boolean!
     }
 
     type AuthPayload {

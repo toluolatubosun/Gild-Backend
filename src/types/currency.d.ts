@@ -1,0 +1,3 @@
+interface CurrencyGetByCodeArgs {
+    code: string;
+}

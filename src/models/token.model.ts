@@ -20,7 +20,7 @@ const tokenSchema: mongoose.Schema = new mongoose.Schema({
     type: {
         type: String,
         required: true,
-        enum: ["reset_password", "verify_email", "refresh_token", "transfer_gild"]
+        enum: ["reset_password", "verify_email", "refresh_token", "transfer_gild", "withdraw_gild"]
     },
     expiresAt: {
         type: Date,
@@ -35,6 +35,22 @@ const tokenSchema: mongoose.Schema = new mongoose.Schema({
             receiverId: {
                 type: String,
                 required: true
+            },
+            amount: {
+                type: Number,
+                required: true
+            }
+        },
+        required: false
+    },
+
+    // Extra Data for Gild Withdrawal
+    gildWithdrawal: {
+        type: {
+            walletId: {
+                type: mongoose.Schema.Types.ObjectId,
+                required: true,
+                ref: "wallet"
             },
             amount: {
                 type: Number,
