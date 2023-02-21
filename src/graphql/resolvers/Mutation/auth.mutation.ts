@@ -15,9 +15,8 @@ export default {
     authLogout: async (_: any, { refreshToken }: AuthLogoutArgs, __: Context): Promise<boolean> => {
         return await AuthService.logout({ refreshToken });
     },
-    authVerifyEmail: async (_: any, { userId, verifyToken, businessData }: AuthVerifyEmailArgs, __: Context): Promise<boolean> => {
-        console.log(businessData);
-        return await AuthService.verifyEmail({ userId, verifyToken }, businessData);
+    authVerifyEmail: async (_: any, { userId, verifyToken }: AuthVerifyEmailArgs, __: Context): Promise<boolean> => {
+        return await AuthService.verifyEmail({ userId, verifyToken });
     },
     authRequestPasswordReset: async (_: any, { email }: AuthRequestPasswordResetArgs, __: Context): Promise<boolean> => {
         return await AuthService.requestPasswordReset(email);

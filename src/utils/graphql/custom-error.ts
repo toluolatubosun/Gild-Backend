@@ -4,6 +4,7 @@ export default class CustomError extends GraphQLError {
     code: string;
 
     constructor(message: string, code = "CUSTOM_ERROR") {
+        message = message.charAt(0).toUpperCase() + message.slice(1);
         super(message);
         this.code = code;
         Object.defineProperty(this, "name", { value: "CustomError" });

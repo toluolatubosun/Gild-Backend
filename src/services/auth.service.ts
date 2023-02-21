@@ -152,9 +152,7 @@ class AuthService {
         return true;
     }
 
-    async verifyEmail(data: VerifyEmailInput, businessData?: BusinessCreateInput) {
-        const { default: BusinessService } = await import("./business.service");
-
+    async verifyEmail(data: VerifyEmailInput) {
         const { userId, verifyToken } = data;
 
         const user = await User.findOne({ _id: userId });
@@ -167,11 +165,6 @@ class AuthService {
         const isValid = await bcrypt.compare(verifyToken, VToken.token);
         if (!isValid) throw new CustomError("invalid or expired password reset token");
 
-        if (user.role === "business") {
-            if (!businessData) throw new CustomError("Business data is required");
-            await BusinessService.create(businessData, userId);
-        }
-
         await User.updateOne({ _id: userId }, { $set: { isVerified: true } }, { new: true });
 
         await VToken.deleteOne();
@@ -182,6 +175,7 @@ class AuthService {
     async requestEmailVerification(email: string) {
         const user = await User.findOne({ email });
         if (!user) throw new CustomError("email does not exist");
+        console.log(user);
         if (user.isVerified) throw new CustomError("email is already verified");
 
         const token = await Token.findOne({ userId: user.id, type: "verify_email" });
@@ -197,7 +191,7 @@ class AuthService {
             expiresAt: Date.now() + ms("1h")
         }).save();
 
-        const link = `${URL.CLIENT_URL}/email-verification?uid=${user.id}&verifyToken=${verifyToken}&role=${user.role}`;
+        const link = `${URL.CLIENT_URL}/auth/email-verification?userId=${user.id}&verifyToken=${verifyToken}`;
 
         // Send Mail
         await new MailService(user).sendEmailVerificationMail(link);
@@ -222,7 +216,7 @@ class AuthService {
             expiresAt: Date.now() + ms("1h")
         }).save();
 
-        const link = `${URL.CLIENT_URL}/reset-password?uid=${user.id}&resetToken=${resetToken}`;
+        const link = `${URL.CLIENT_URL}/auth/password-reset?userId=${user.id}&resetToken=${resetToken}`;
 
         // Send Mail
         await new MailService(user).sendPasswordResetMail(link);
@@ -233,11 +227,17 @@ class AuthService {
     async resetPassword(data: ResetPasswordInput) {
         const { userId, resetToken, password } = data;
 
+        const user = await User.findOne({ _id: userId });
+        if (!user) throw new CustomError("User does not exist");
+
         const RToken = await Token.findOne({ userId, type: "reset_password" });
         if (!RToken) throw new CustomError("invalid or expired password reset token");
 
         const isValid = await bcrypt.compare(resetToken, RToken.token);
         if (!isValid) throw new CustomError("invalid or expired password reset token");
+
+        const isSame = await bcrypt.compare(password, user.password);
+        if (isSame) throw new CustomError("you cannot use your current password");
 
         const hash = await bcrypt.hash(password, BCRYPT_SALT);
 

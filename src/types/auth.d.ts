@@ -69,7 +69,6 @@ interface AuthRequestEmailVerificationArgs {
 interface AuthVerifyEmailArgs {
     userId: string;
     verifyToken: string;
-    businessData?: BusinessCreateInput;
 }
 
 interface AuthUpdatePasswordArgs {

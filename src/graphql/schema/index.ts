@@ -7,8 +7,8 @@ const typeDefs = `#graphql
         userProfile(input: UserInfoInput!): PublicUser!
         users(pagination: PaginationInput!): UsersPayload!
 
-        walletGetOne: Wallet!
         walletGetMine: Wallet!
+        walletGetOne(walletId: String!): Wallet!
         wallets(pagination: PaginationInput!): WalletsPayload!
 
         notifications(pagination: PaginationInput!): NotificationsPayload!

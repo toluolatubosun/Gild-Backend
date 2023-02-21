@@ -47,3 +47,7 @@ interface CompleteTransferArgs {
     amount: number;
     receiverId: string;
 }
+
+interface WalletGetOneArgs {
+    walletId: string;
+}
