@@ -14,11 +14,11 @@ import CustomError from "../utils/graphql/custom-error";
 import type { ClientSession } from "mongoose";
 
 class WalletService {
-    async create(userId: string) {
+    async create(userId: string, session?: ClientSession) {
         const existingWallet = await Wallet.findOne({ userId });
         if (existingWallet) throw new CustomError("User already has a wallet");
 
-        return await new Wallet({ userId }).save();
+        return await new Wallet({ userId }).save({ session });
     }
 
     async getByUserId(userId: string) {
@@ -298,13 +298,16 @@ class WalletService {
         await useTransaction(async (session: ClientSession) => {
             await Wallet.findOneAndUpdate({ _id: wallet.id }, { balance: wallet.balance - data.amount }, { session });
 
-            await NotificationService.create({
-                sourceId: "system",
-                receiverId: user.id,
-                title: "Withdrawal Completed",
-                message: `You have successfully withdrawn ${data.amount} GILD from your Gild wallet`
-            }, session);
-            
+            await NotificationService.create(
+                {
+                    sourceId: "system",
+                    receiverId: user.id,
+                    title: "Withdrawal Completed",
+                    message: `You have successfully withdrawn ${data.amount} GILD from your Gild wallet`
+                },
+                session
+            );
+
             await token.deleteOne({ session });
             await TransactionService.recordWithdrawal({ userId, amount: data.amount, walletId: wallet.id }, session);
 

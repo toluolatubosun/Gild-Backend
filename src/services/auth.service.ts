@@ -6,19 +6,22 @@ import JWT from "jsonwebtoken";
 import User from "./../models/user.model";
 import Token from "./../models/token.model";
 import MailService from "./../services/mail.service";
+import useTransaction from "../utils/use-transaction";
 import CustomError from "../utils/graphql/custom-error";
 import { APP_NAME, JWT_SECRET, BCRYPT_SALT, URL } from "./../config";
 
+import type { ClientSession } from "mongoose";
+
 class AuthService {
-    async register(data: RegisterInput) {
+    async register(data: RegisterInput, businessData?: BusinessCreateInput) {
         const { default: WalletService } = await import("./wallet.service");
+        const { default: BusinessService } = await import("./business.service");
 
         if (!data.name) throw new CustomError("name is required");
         if (!data.email) throw new CustomError("email is required");
         if (!data.username) throw new CustomError("username is required");
         if (!data.password) throw new CustomError("password is required");
 
-        // Validate username
         if (data.username.toLowerCase() === APP_NAME) throw new CustomError("invalid username");
         if (!/^[a-zA-Z0-9_-]{3,20}$/.test(data.username)) throw new CustomError("invalid username");
 
@@ -31,16 +34,25 @@ class AuthService {
         const existingUsername = await User.findOne({ username: data.username });
         if (existingUsername) throw new CustomError("username already exists");
 
-        const user = await new User(data).save();
+        await useTransaction(async (session: ClientSession) => {
+            const user = await new User(data).save({ session });
 
-        // Request email verification
-        await this.requestEmailVerification(user.email);
-        // Create Wallet
-        await WalletService.create(user.id);
+            if (data.role === "business") {
+                if (!businessData) throw new CustomError("businessData is required");
+                await BusinessService.create(businessData, user.id, session);
+            }
 
-        const authTokens = await this.generateAuthTokens({ userId: user.id, role: user.role });
+            await WalletService.create(user.id, session);
+        });
 
-        return { user, token: authTokens };
+        const newUser = await User.findOne({ email: data.email });
+        if (!newUser) throw new CustomError("An error occurred creating your account");
+
+        await this.requestEmailVerification(newUser.email);
+
+        const authTokens = await this.generateAuthTokens({ userId: newUser.id, role: newUser.role });
+
+        return { user: newUser, token: authTokens };
     }
 
     async login(data: LoginInput) {

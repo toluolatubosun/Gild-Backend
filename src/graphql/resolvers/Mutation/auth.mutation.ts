@@ -9,8 +9,8 @@ export default {
     authLogin: async (_: any, { input }: AuthLoginArgs, __: Context): Promise<{ user: IUser; token: AuthToken }> => {
         return await AuthService.login(input);
     },
-    authRegister: async (_: any, { input }: AuthRegisterArgs, __: Context): Promise<{ user: IUser; token: AuthToken }> => {
-        return await AuthService.register(input);
+    authRegister: async (_: any, { input, businessData }: AuthRegisterArgs, __: Context): Promise<{ user: IUser; token: AuthToken }> => {
+        return await AuthService.register(input, businessData);
     },
     authLogout: async (_: any, { refreshToken }: AuthLogoutArgs, __: Context): Promise<boolean> => {
         return await AuthService.logout({ refreshToken });

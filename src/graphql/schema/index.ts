@@ -21,12 +21,12 @@ const typeDefs = `#graphql
     type Mutation {
         authLogin(input: LoginInput!): AuthPayload!
         authLogout(refreshToken: String!): Boolean!
-        authRegister(input: RegisterInput!): AuthPayload!
         authRequestPasswordReset(email: String!): Boolean!
         authRefreshAccessToken(refreshToken: String!): String!
         authRequestEmailVerification(email: String!): Boolean!
         authUpdatePassword(oldPassword: String!, newPassword: String!): Boolean!
         authResetPassword(userId: ID!, resetToken: String!, password: String!): Boolean!
+        authRegister(input: RegisterInput!, businessData: BusinessDataInput): AuthPayload!
         authVerifyEmail(userId: ID!, verifyToken: String!, businessData: BusinessDataInput): Boolean!
 
         userDelete(userId: ID!): User!
@@ -134,11 +134,11 @@ const typeDefs = `#graphql
     }
 
     input BusinessDataInput {
-        companySize: String!
         city: String!
         state: String!
         country: String!
         industry: String!
+        companySize: String!
     }
 
     input RegisterInput {

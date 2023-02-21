@@ -1,11 +1,11 @@
 /////////////////////// Service ///////////////////////
 
 interface RegisterInput {
+    role: Role;
     name: string;
     email: string;
     username: string;
     password: string;
-    role: Role;
 }
 
 interface LoginInput {
@@ -51,6 +51,7 @@ interface AuthToken {
 
 interface AuthRegisterArgs {
     input: RegisterInput;
+    businessData?: BusinessCreateInput;
 }
 
 interface AuthLoginArgs {
