@@ -19,7 +19,6 @@ class CurrencyService {
             ];
 
             await Currency.insertMany(rates);
-
             await this.updateRates();
         }
     }
@@ -49,8 +48,13 @@ class CurrencyService {
     }
 
     async updateRates() {
-        const rates = await this.getLatestRates();
+        const currenciesCount = await Currency.countDocuments({});
+        if (currenciesCount === 0) {
+            await this.init();
+            return;
+        }
 
+        const rates = await this.getLatestRates();
         await Promise.all(
             Object.keys(rates).map(async (code) => {
                 const rate = rates[code];
