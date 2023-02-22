@@ -31,12 +31,14 @@ const typeDefs = `#graphql
 
         userDelete(userId: ID!): User!
         userCreate(input: UserDataInput!): User!
-        userUpdateMe(input: UserDataInput!): User!
+        userUpdateMe(input: UserUpdateInput!): User!
         userUpdate(userId: ID!, input: UserDataInput!): User!
 
         walletInitializeTransfer(receiverId: String!, amount: Int!): Boolean!
         walletInitializeDeposit(amount: Int!, currencyCode: String!): String!
         walletCompleteTransfer(receiverId: String!, amount: Int!, OTP: String!): Boolean!
+
+        businessUpdateMine(businessData: BusinessDataInput!): Business!
     }
 
     type User {
@@ -55,11 +57,12 @@ const typeDefs = `#graphql
     }
 
     type Business {
-        companySize: String!
+        id: ID!
         city: String!
         state: String!
         country: String!
         industry: String!
+        companySize: String!
     }
 
     type Wallet {
@@ -134,11 +137,11 @@ const typeDefs = `#graphql
     }
 
     input BusinessDataInput {
-        city: String!
-        state: String!
-        country: String!
-        industry: String!
-        companySize: String!
+        city: String
+        state: String
+        country: String
+        industry: String
+        companySize: String
     }
 
     input RegisterInput {
@@ -160,6 +163,11 @@ const typeDefs = `#graphql
         email: String
         image: String
         password: String
+    }
+
+    input UserUpdateInput {
+        name: String
+        image: String
     }
 
     input UserInfoInput {

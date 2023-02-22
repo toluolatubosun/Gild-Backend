@@ -175,7 +175,6 @@ class AuthService {
     async requestEmailVerification(email: string) {
         const user = await User.findOne({ email });
         if (!user) throw new CustomError("email does not exist");
-        console.log(user);
         if (user.isVerified) throw new CustomError("email is already verified");
 
         const token = await Token.findOne({ userId: user.id, type: "verify_email" });

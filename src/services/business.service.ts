@@ -30,7 +30,7 @@ class BusinessService {
     async update(businessId: string, data: BusinessUpdateInput) {
         if (!isValidObjectId(businessId)) throw new CustomError("Invalid businessId");
 
-        const business = await Business.findOneAndUpdate({ _id: businessId }, { $set: { data } }, { new: true });
+        const business = await Business.findOneAndUpdate({ _id: businessId }, { $set: data }, { new: true });
         if (!business) throw new CustomError("Specified business does not exit");
 
         return business;

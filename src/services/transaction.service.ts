@@ -37,6 +37,7 @@ class TransactionService {
                 price: data.price,
                 amount: data.amount,
                 userId: data.userId,
+                walletId: data.walletId,
                 currency: data.currency,
                 stripePaymentId: data.stripePaymentId
             }
