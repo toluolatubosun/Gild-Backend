@@ -34,7 +34,8 @@ class UserService {
         if (!user.stripeAccountId) throw new CustomError("user has no linked stripe account");
 
         const accountLink = await StripeUtil.createLoginLink(user.stripeAccountId);
-        return accountLink;
+
+        return accountLink.url;
     }
 
     async getAccount(userId: string) {

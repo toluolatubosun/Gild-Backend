@@ -44,6 +44,7 @@ const typeDefs = `#graphql
 
         stripeAttachCard: String!
         stripeSetupExpressAccount: String!
+        stripeLoginToExpressAccount: String!
         stripeDeleteMyCard(cardId: String!): Boolean!
     }
 
