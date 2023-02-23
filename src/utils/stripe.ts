@@ -11,10 +11,12 @@ class StripeUtil {
 
     /** Creates a Stripe Express Account */
     async createExpressAccount() {
+        const baseURL = URL.CLIENT_URL.includes("localhost") ? "https://dev.gild.com" : URL.CLIENT_URL;
+
         const account = await this.stripe.accounts.create({
             type: "express",
             business_type: "individual",
-            business_profile: { url: `${URL.CLIENT_URL}/dashboard/` }
+            business_profile: { url: `${baseURL}/dashboard/` }
         });
 
         return account;

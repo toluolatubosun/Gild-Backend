@@ -43,6 +43,7 @@ const typeDefs = `#graphql
         businessUpdateMine(businessData: BusinessDataInput!): Business!
 
         stripeAttachCard: String!
+        stripeSetupExpressAccount: String!
         stripeDeleteMyCard(cardId: String!): Boolean!
     }
 
@@ -59,6 +60,7 @@ const typeDefs = `#graphql
         isVerified: Boolean!
         wallet: Wallet!
         business: Business
+        stripeAccountStatus: StripeAccountStatus!
     }
 
     type Business {
@@ -196,6 +198,12 @@ const typeDefs = `#graphql
         admin
         system
         business
+    }
+
+    enum StripeAccountStatus {
+        connected
+        not_connected
+        setup_incomplete
     }
 `;
 

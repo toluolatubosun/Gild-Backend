@@ -2,33 +2,10 @@ import StripeUtil from "./../utils/stripe";
 import CustomError from "./../utils/graphql/custom-error";
 
 class UserService {
-    async getLoginLink(userId: string) {
-        const { default: UserService } = await import("./user.service");
-
-        const user = await UserService.getOne(userId);
-        if (!user.stripeAccountId) throw new CustomError("user has no linked stripe account");
-
-        const accountLink = await StripeUtil.createLoginLink(user.stripeAccountId);
-        return accountLink;
-    }
-
-    async getAccountLink(userId: string) {
-        const { default: UserService } = await import("./user.service");
-
-        const user = await UserService.getOne(userId);
-
-        if (!user.stripeAccountId) {
-            return await this.createExpressAccount(userId);
-        }
-
-        return await StripeUtil.createAccountLink(user.stripeAccountId);
-    }
-
     async createExpressAccount(userId: string) {
         const { default: UserService } = await import("./user.service");
 
         const user = await UserService.getOne(userId);
-
         if (user.stripeAccountId) throw new CustomError("user already has a linked stripe account");
 
         const account = await StripeUtil.createExpressAccount();
@@ -36,6 +13,27 @@ class UserService {
 
         await UserService.addStripeAccountId(user.id, account.id);
 
+        return accountLink.url;
+    }
+
+    async getAccountSetupLink(userId: string) {
+        const { default: UserService } = await import("./user.service");
+
+        const user = await UserService.getOne(userId);
+        if (!user.stripeAccountId) return await this.createExpressAccount(userId);
+
+        const accountLink = await StripeUtil.createAccountLink(user.stripeAccountId);
+
+        return accountLink.url;
+    }
+
+    async getLoginLink(userId: string) {
+        const { default: UserService } = await import("./user.service");
+
+        const user = await UserService.getOne(userId);
+        if (!user.stripeAccountId) throw new CustomError("user has no linked stripe account");
+
+        const accountLink = await StripeUtil.createLoginLink(user.stripeAccountId);
         return accountLink;
     }
 
@@ -48,6 +46,21 @@ class UserService {
         const account = await StripeUtil.retrieveAccount(user.stripeAccountId);
 
         return account;
+    }
+
+    async getStripeAccountStatus(userId: string) {
+        const { default: UserService } = await import("./user.service");
+
+        const user = await UserService.getOne(userId);
+        if (!user.stripeAccountId) return "not_connected";
+
+        const account = await StripeUtil.retrieveAccount(user.stripeAccountId);
+
+        if (account.charges_enabled && account.payouts_enabled) {
+            return "connected";
+        } else {
+            return "setup_incomplete";
+        }
     }
 
     async getCardsByUserId(userId: string) {

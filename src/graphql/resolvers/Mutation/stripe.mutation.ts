@@ -12,5 +12,9 @@ export default {
     stripeAttachCard: async (_: any, __: any, context: Context): Promise<string> => {
         const user = guard(context.user, ROLE.USER);
         return await StripeService.attachCard(user.id);
+    },
+    stripeSetupExpressAccount: async (_: any, __: any, context: Context): Promise<string> => {
+        const user = guard(context.user, ROLE.USER);
+        return await StripeService.getAccountSetupLink(user.id);
     }
 };
