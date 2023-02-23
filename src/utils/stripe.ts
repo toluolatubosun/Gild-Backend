@@ -72,7 +72,7 @@ class StripeUtil {
         return cards;
     }
 
-    async attachCard(customerId: string, data: any) {
+    async attachCard(customerId: string) {
         return await this.stripe.setupIntents.create({
             customer: customerId,
             payment_method_types: ["card"]

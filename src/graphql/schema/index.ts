@@ -16,6 +16,8 @@ const typeDefs = `#graphql
 
         currencies: [Currency!]!
         currencyGetByCode(code: String!): Currency!
+
+        stripeGetMyCards: [CreditCard!]!
     }
 
     type Mutation {
@@ -39,6 +41,9 @@ const typeDefs = `#graphql
         walletCompleteTransfer(receiverId: String!, amount: Int!, OTP: String!): Boolean!
 
         businessUpdateMine(businessData: BusinessDataInput!): Business!
+
+        stripeAttachCard: String!
+        stripeDeleteMyCard(cardId: String!): Boolean!
     }
 
     type User {
@@ -96,6 +101,15 @@ const typeDefs = `#graphql
         code: String!
         gildRate: Float!
         isZeroDecimal: Boolean!
+    }
+
+    type CreditCard {
+        id: ID!
+        brand: String!
+        expiryYear: Int!
+        expiryMonth: Int!
+        fingerprint: String!
+        lastFourDigits: String!
     }
 
     type AuthPayload {

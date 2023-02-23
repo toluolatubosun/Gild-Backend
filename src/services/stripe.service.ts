@@ -50,36 +50,39 @@ class UserService {
         return account;
     }
 
-    async getCards(userId: string) {
+    async getCardsByUserId(userId: string) {
         const { default: UserService } = await import("./user.service");
 
         const user = await UserService.getOne(userId);
 
-        const rawCards = await StripeUtil.retrieveCustomerCards(`${user.name}`, user.email);
+        const cardData = (await StripeUtil.retrieveCustomerCards(`${user.name}`, user.email)).data;
+        const creditCards: CreditCard[] = [];
 
-        const formattedCards = rawCards.data.map((card) => {
-            return {
-                id: card.id,
-                last4: card.card ? card.card.last4 : "0000",
-                brand: card.card ? card.card.brand : "UNKNOWN",
-                expYear: card.card ? card.card.exp_year : "00",
-                expMonth: card.card ? card.card.exp_month : "00",
-                fingerprint: card.card ? card.card.fingerprint : "000000000000"
-            };
+        cardData.forEach((card) => {
+            if (card.card) {
+                creditCards.push({
+                    id: card.id,
+                    brand: card.card.brand,
+                    expiryYear: card.card.exp_year,
+                    lastFourDigits: card.card.last4,
+                    expiryMonth: card.card.exp_month,
+                    fingerprint: card.card.fingerprint || "000000000000"
+                });
+            }
         });
 
-        return formattedCards;
+        return creditCards;
     }
 
-    async attachCard(userId: string, data: any) {
+    async attachCard(userId: string) {
         const { default: UserService } = await import("./user.service");
 
         const user = await UserService.getOne(userId);
         const customer = await StripeUtil.retrieveCustomer(`${user.name}`, user.email);
 
-        const intent = await StripeUtil.attachCard(customer.id, data);
+        const intent = await StripeUtil.attachCard(customer.id);
 
-        return { clientSecret: intent.client_secret };
+        return intent.client_secret as string;
     }
 
     async deleteCard(userId: string, cardId: string) {
@@ -91,7 +94,9 @@ class UserService {
         const card = cards.data.find((card: any) => card.id === cardId);
         if (!card) throw new CustomError("card not found");
 
-        return await StripeUtil.removeCard(cardId);
+        await StripeUtil.removeCard(cardId);
+
+        return true;
     }
 
     async getGildRates() {
