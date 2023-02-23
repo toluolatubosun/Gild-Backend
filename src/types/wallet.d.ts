@@ -51,3 +51,7 @@ interface CompleteTransferArgs {
 interface WalletGetOneArgs {
     walletId: string;
 }
+
+interface InitializeWithdrawalArgs {
+    amount: number;
+}

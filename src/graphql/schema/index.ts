@@ -36,6 +36,8 @@ const typeDefs = `#graphql
         userUpdateMe(input: UserUpdateInput!): User!
         userUpdate(userId: ID!, input: UserDataInput!): User!
 
+        walletInitializeWithdrawal(amount: Int!): Boolean!
+        walletCompleteWithdrawal(amount: Int!, OTP: String!): Boolean!
         walletInitializeTransfer(receiverId: String!, amount: Int!): Boolean!
         walletInitializeDeposit(amount: Int!, currencyCode: String!): String!
         walletCompleteTransfer(receiverId: String!, amount: Int!, OTP: String!): Boolean!

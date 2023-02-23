@@ -16,5 +16,13 @@ export default {
     walletCompleteTransfer: async (_: any, { receiverId, amount, OTP }: CompleteTransferArgs, context: Context): Promise<Boolean> => {
         const user = guard(context.user, ROLE.USER);
         return await WalletService.completeTransfer(user.id, { receiverId, amount, OTP });
+    },
+    walletInitializeWithdrawal: async (_: any, { amount }: InitializeWithdrawalArgs, context: Context): Promise<Boolean> => {
+        const user = guard(context.user, ROLE.USER);
+        return await WalletService.initializeWithdrawal(user.id, amount);
+    },
+    walletCompleteWithdrawal: async (_: any, { amount, OTP }: GildWithdrawalInput, context: Context): Promise<Boolean> => {
+        const user = guard(context.user, ROLE.USER);
+        return await WalletService.completeWithdrawal(user.id, { amount, OTP });
     }
 };
