@@ -1,4 +1,5 @@
 import { nanoid } from "nanoid";
+import { isValidObjectId } from "mongoose";
 
 import User from "./../models/user.model";
 import CloudinaryUtil from "../utils/cloudinary";
@@ -69,7 +70,22 @@ class UserService {
         };
     }
 
+    /**
+     * Get user by id, email or username
+     * @param id - id, email or username
+     */
+    async getUserById(id: string) {
+        if (isValidObjectId(id)) return await this.getOne(id);
+
+        const user = await User.findOne({ $or: [{ email: id }, { username: id }] });
+        if (!user) throw new CustomError("user does not exist");
+
+        return user;
+    }
+
     async getOne(userId: string) {
+        if (!isValidObjectId) throw new CustomError("invalid user id");
+
         const user = await User.findOne({ _id: userId }, { password: 0, __v: 0 });
         if (!user) throw new CustomError("user does not exist");
 
@@ -101,9 +117,7 @@ class UserService {
     }
 
     async update(userId: string, data: UserDataInput, access = "user") {
-        if (access !== "admin") {
-            delete data.role, data.email, data.password;
-        }
+        if (access !== "admin") delete data.role, data.email, data.password;
 
         if (data.image) {
             data.image = await this.uploadImage(data.image);

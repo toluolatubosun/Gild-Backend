@@ -149,12 +149,14 @@ class WalletService {
         const { default: NotificationService } = await import("./notification.service");
 
         const sender = await UserService.getOne(senderId);
-        const senderWallet = await this.getByUserId(senderId);
+        const receiver = await UserService.getUserById(receiverId);
 
-        if (senderId === receiverId) throw new CustomError("invalid transfer");
+        const senderWallet = await this.getByUserId(sender.id);
+
+        if (sender.id === receiver.id) throw new CustomError("invalid transfer");
         if (senderWallet.balance < amount) throw new CustomError("insufficient funds");
 
-        const last24Hours = await TransactionService.transferInLast24Hours(senderId);
+        const last24Hours = await TransactionService.transferInLast24Hours(sender.id);
         if (last24Hours.count >= 3) throw new CustomError("you have reached the maximum number of transfers per day");
         if (last24Hours.totalAmount + amount > 1000) throw new CustomError("you have reached the maximum amount of transfers per day");
 
@@ -163,7 +165,7 @@ class WalletService {
         if (amount < 10) throw new CustomError("minimum transfer is 10 Gild tokens per transaction");
         if (amount > 250) throw new CustomError("maximum transfer is 250 Gild tokens per transaction");
 
-        const token = await Token.findOne({ userId: senderId, type: "transfer_gild" });
+        const token = await Token.findOne({ userId: sender.id, type: "transfer_gild" });
         if (token) await token.deleteOne();
 
         const nanoidOTP = customAlphabet("012345789", 6);
@@ -173,10 +175,10 @@ class WalletService {
 
         await new Token({
             token: hashedOTP,
-            userId: senderId,
+            userId: sender.id,
             type: "transfer_gild",
             expiresAt: Date.now() + ms("15m"),
-            gildTransfer: { amount, receiverId }
+            gildTransfer: { amount, receiverId: receiver.id }
         }).save();
 
         await new MailService(sender).sendTransferOTP(OTP);
@@ -192,22 +194,25 @@ class WalletService {
     }
 
     async completeTransfer(senderId: string, data: GildTransferInput) {
+        const { default: UserService } = await import("./user.service");
         const { default: TransactionService } = await import("./transaction.service");
-
-        const senderWallet = await this.getByUserId(senderId);
-        const receiverWallet = await this.getByUserId(data.receiverId);
 
         if (!data.OTP) throw new CustomError("OTP is required");
         if (!data.amount) throw new CustomError("amount is required");
         if (!data.receiverId) throw new CustomError("receiverId is required");
 
+        const senderWallet = await this.getByUserId(senderId);
+
+        const receiver = await UserService.getUserById(data.receiverId);
+        const receiverWallet = await this.getByUserId(receiver.id);
+
         const token = await Token.findOne({
             userId: senderId,
             type: "transfer_gild",
             "gildTransfer.amount": data.amount,
-            "gildTransfer.receiverId": data.receiverId
+            "gildTransfer.receiverId": receiver.id
         });
-        if (!token) throw new CustomError("transfer cannot be completed");
+        if (!token) throw new CustomError("invalid OTP");
 
         const isOTPValid = await bcrypt.compare(data.OTP, token.token);
         if (!isOTPValid) throw new CustomError("invalid OTP");
@@ -223,7 +228,7 @@ class WalletService {
             await Wallet.findOneAndUpdate({ _id: receiverWallet.id }, { balance: receiverWallet.balance + data.amount }, { session });
 
             await token.deleteOne({ session });
-            await TransactionService.recordTransfer({ senderId, receiverId: data.receiverId, amount: data.amount }, session);
+            await TransactionService.recordTransfer({ senderId, receiverId: receiver.id, amount: data.amount }, session);
         });
 
         return true;
@@ -288,7 +293,7 @@ class WalletService {
             "gildWithdrawal.amount": data.amount,
             "gildWithdrawal.walletId": wallet.id
         });
-        if (!token) throw new CustomError("withdrawal cannot be completed");
+        if (!token) throw new CustomError("invalid OTP");
 
         const isOTPValid = await bcrypt.compare(data.OTP, token.token);
         if (!isOTPValid) throw new CustomError("invalid OTP");
