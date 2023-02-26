@@ -98,6 +98,7 @@ const typeDefs = `#graphql
         readAt: String
         receiver: User!
         source: PublicUser!
+        createdAt: String!
     }
 
     type Currency {
