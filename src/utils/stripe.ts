@@ -144,7 +144,11 @@ class StripeUtil {
                 wallet_id: data.walletId,
                 customer_id: customer.id
             },
-            setup_future_usage: "off_session"
+            payment_method_options: {
+                card: {
+                    setup_future_usage: 'off_session',
+                },
+            }
         });
 
         return paymentIntent;
