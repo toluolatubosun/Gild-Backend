@@ -146,8 +146,8 @@ class StripeUtil {
             },
             payment_method_options: {
                 card: {
-                    setup_future_usage: 'off_session',
-                },
+                    setup_future_usage: "off_session"
+                }
             }
         });
 

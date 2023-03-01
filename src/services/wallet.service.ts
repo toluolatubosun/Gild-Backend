@@ -264,7 +264,7 @@ class WalletService {
             gildWithdrawal: { amount, walletId: wallet.id }
         }).save();
 
-        await new MailService(user).sendTransferOTP(OTP);
+        await new MailService(user).sendWithdrawalOTP(OTP);
 
         await NotificationService.create({
             sourceId: "system",
