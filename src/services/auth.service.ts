@@ -56,6 +56,8 @@ class AuthService {
     }
 
     async login(data: LoginInput) {
+        const { default: NotificationService } = await import("./notification.service");
+
         if (!data.email) throw new CustomError("email is required");
         if (!data.password) throw new CustomError("password is required");
 
@@ -68,6 +70,13 @@ class AuthService {
         if (!isCorrect) throw new CustomError("incorrect email or password");
 
         const authTokens = await this.generateAuthTokens({ userId: user.id, role: user.role });
+
+        await NotificationService.create({
+            title: "Login Alert",
+            message: "A new login was detected on your account",
+            sourceId: "system",
+            receiverId: user.id
+        });
 
         return { user, token: authTokens };
     }
@@ -224,6 +233,8 @@ class AuthService {
     }
 
     async resetPassword(data: ResetPasswordInput) {
+        const { default: NotificationService } = await import("./notification.service");
+
         const { userId, resetToken, password } = data;
 
         const user = await User.findOne({ _id: userId });
@@ -244,10 +255,19 @@ class AuthService {
 
         await RToken.deleteOne();
 
+        await NotificationService.create({
+            title: "Password Reset",
+            message: "Your password has been reset, if you did not do this please contact support",
+            sourceId: "system",
+            receiverId: user.id
+        });
+
         return true;
     }
 
     async updatePassword(userId: string, data: UpdatePasswordInput) {
+        const { default: NotificationService } = await import("./notification.service");
+
         if (!data.oldPassword) throw new CustomError("password is required");
         if (!data.newPassword) throw new CustomError("new password is required");
 
@@ -264,6 +284,13 @@ class AuthService {
         const hash = await bcrypt.hash(data.newPassword, BCRYPT_SALT);
 
         await User.updateOne({ _id: userId }, { $set: { password: hash } }, { new: true });
+
+        await NotificationService.create({
+            title: "Password Changed",
+            message: "Your password has been changed, if you did not do this please contact support",
+            sourceId: "system",
+            receiverId: userId
+        });
 
         return true;
     }
