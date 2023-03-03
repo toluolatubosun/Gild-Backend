@@ -4,13 +4,14 @@
     "description": "",
     "main": "src/index.js",
     "scripts": {
-        "build": "tsc -p .",
+        "lint": "eslint src/**/*.ts",
         "dev": "nodemon src/index.ts",
         "start": "node build/index.js",
-        "start:prod": "pm2-runtime start ecosystem.config.js --env production",
         "prettier": "prettier --write .",
-        "lint": "eslint src/**/*.ts",
-        "format": "eslint src/**/*.ts --fix"
+        "format": "eslint src/**/*.ts --fix",
+        "compile": "tsc -p .",
+        "copy-templates": "cp -r src/email-templates/raw/ build/email-templates/raw/",
+        "build": "yarn compile && yarn copy-templates"
     },
     "keywords": [
         "graphql",
