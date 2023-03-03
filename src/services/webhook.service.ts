@@ -23,7 +23,7 @@ class WebhookService {
                 const metadata = (event.data.object as any).metadata;
                 const paymentIntentId = (event.data.object as any).id;
 
-                if (metadata.node_env !== NODE_ENV && metadata.source !== APP_NAME) return true;
+                if (metadata.source !== APP_NAME || metadata.node_env !== NODE_ENV) break;
 
                 if (metadata.action === "gild_purchase" && status === "succeeded") {
                     await WalletService.completeDeposit(metadata, paymentIntentId);
