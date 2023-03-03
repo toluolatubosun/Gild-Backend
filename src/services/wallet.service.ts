@@ -184,8 +184,8 @@ class WalletService {
         await new MailService(sender).sendTransferOTP(OTP);
 
         await NotificationService.create({
-            title: "Hello world",
-            message: "dummy notification dummy notification dummy notification",
+            title: "Transfer Notification",
+            message: `A transfer of ${amount} GILD to ${receiver.name} has been initiated`,
             sourceId: "system",
             receiverId: sender.id
         });
@@ -196,11 +196,13 @@ class WalletService {
     async completeTransfer(senderId: string, data: GildTransferInput) {
         const { default: UserService } = await import("./user.service");
         const { default: TransactionService } = await import("./transaction.service");
+        const { default: NotificationService } = await import("./notification.service");
 
         if (!data.OTP) throw new CustomError("OTP is required");
         if (!data.amount) throw new CustomError("amount is required");
         if (!data.receiverId) throw new CustomError("receiverId is required");
 
+        const sender = await UserService.getOne(senderId);
         const senderWallet = await this.getByUserId(senderId);
 
         const receiver = await UserService.getUserById(data.receiverId);
@@ -229,6 +231,20 @@ class WalletService {
 
             await token.deleteOne({ session });
             await TransactionService.recordTransfer({ senderId, receiverId: receiver.id, amount: data.amount }, session);
+        });
+
+        await NotificationService.create({
+            title: "Transfer Notification",
+            message: `A transfer of ${data.amount} GILD to ${receiver.name} has been completed`,
+            sourceId: "system",
+            receiverId: sender.id
+        });
+
+        await NotificationService.create({
+            title: "Transfer Notification",
+            message: `You have received a transfer of ${data.amount} GILD from ${sender.name}`,
+            sourceId: sender.id,
+            receiverId: receiver.id
         });
 
         return true;
