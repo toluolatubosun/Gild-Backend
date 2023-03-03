@@ -30,6 +30,7 @@ export const currencyConversion = cron.schedule(
         }
     },
     {
+        runOnInit: true,
         scheduled: false
     }
 );
