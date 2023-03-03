@@ -52,12 +52,12 @@ class NotificationService {
             const [nextId, nextCreatedAt] = next.split("_");
             query = {
                 ...query,
-                $or: [{ createdAt: { $gt: nextCreatedAt } }, { createdAt: nextCreatedAt, _id: { $lt: nextId } }]
+                $or: [{ createdAt: { $lt: nextCreatedAt } }, { createdAt: nextCreatedAt, _id: { $lt: nextId } }]
             };
         }
 
         const notifications = await Notification.find(query)
-            .sort({ createdAt: -1, _id: 1 })
+            .sort({ createdAt: -1, _id: -1 })
             .limit(Number(limit) + 1);
 
         const hasNext = notifications.length > limit;
