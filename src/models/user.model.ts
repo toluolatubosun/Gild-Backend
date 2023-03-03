@@ -38,7 +38,6 @@ const userSchema: mongoose.Schema = new mongoose.Schema(
         },
         stripeAccountId: {
             type: String,
-            unique: true,
             required: false
         },
         password: {

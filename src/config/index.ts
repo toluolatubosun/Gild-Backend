@@ -1,6 +1,5 @@
 export const APP_NAME = "Gild";
 export const PORT = process.env.PORT || 8080;
-export const APP_LOGO = "https://picsum.photos/200/300";
 export const NODE_ENV = process.env.NODE_ENV || "development";
 export const CLOUDINARY_URL = process.env.CLOUDINARY_URL || "";
 export const BCRYPT_SALT = Number(process.env.BCRYPT_SALT) || 10;
@@ -9,7 +8,8 @@ export const CURRENCY_LAYER_API_KEY = process.env.CURRENCY_LAYER_API_KEY || "";
 export const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/gild";
 export const URL = {
     BASE_URL: process.env.BASE_URL || `http://localhost:${PORT}`,
-    CLIENT_URL: process.env.CLIENT_URL || "http://localhost:3000"
+    CLIENT_URL: process.env.CLIENT_URL || "http://localhost:3000",
+    APP_LOGO: process.env.APP_LOGO || "https://picsum.photos/200/300"
 };
 export const ROLE = {
     ADMIN: ["admin"],

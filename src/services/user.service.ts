@@ -3,7 +3,7 @@ import { isValidObjectId } from "mongoose";
 
 import User from "./../models/user.model";
 import CloudinaryUtil from "../utils/cloudinary";
-import { APP_NAME, APP_LOGO, MAILER } from "../config";
+import { APP_NAME, URL, MAILER } from "../config";
 import CustomError from "./../utils/graphql/custom-error";
 
 import type { UploadApiResponse } from "cloudinary";
@@ -24,8 +24,8 @@ class UserService {
         const user = await new User({
             name: APP_NAME,
             role: "system",
-            image: APP_LOGO,
             username: APP_NAME,
+            image: URL.APP_LOGO,
             password: nanoid(32),
             email: "noreply" + MAILER.DOMAIN
         }).save();
