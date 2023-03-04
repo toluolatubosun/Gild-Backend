@@ -7,7 +7,7 @@ export interface IUser extends mongoose.Document {
     name: string;
     email: string;
     username: string;
-    stripeAccountId: string;
+    stripeAccountId?: string;
     password: string;
     image: string;
     role: "user" | "business" | "admin" | "system";

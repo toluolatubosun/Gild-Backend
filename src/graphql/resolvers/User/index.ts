@@ -14,6 +14,6 @@ export default {
         return await BusinessService.getByUserId(user.id, false);
     },
     stripeAccountStatus: async (user: IUser, __: any, _: any): Promise<string> => {
-        return await StripeService.getStripeAccountStatus(user.id);
+        return await StripeService.getAccountStatus(user.stripeAccountId);
     }
 };

@@ -49,13 +49,10 @@ class UserService {
         return account;
     }
 
-    async getStripeAccountStatus(userId: string) {
-        const { default: UserService } = await import("./user.service");
+    async getAccountStatus(stripeAccountId: string | undefined) {
+        if (!stripeAccountId) return "not_connected";
 
-        const user = await UserService.getOne(userId);
-        if (!user.stripeAccountId) return "not_connected";
-
-        const account = await StripeUtil.retrieveAccount(user.stripeAccountId);
+        const account = await StripeUtil.retrieveAccount(stripeAccountId);
 
         if (account.charges_enabled && account.payouts_enabled) {
             return "connected";

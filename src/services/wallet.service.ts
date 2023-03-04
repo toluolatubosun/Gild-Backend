@@ -252,6 +252,7 @@ class WalletService {
 
     async initializeWithdrawal(userId: string, amount: number) {
         const { default: UserService } = await import("./user.service");
+        const { default: StripeService } = await import("./stripe.service");
         const { default: NotificationService } = await import("./notification.service");
 
         if (!amount) throw new CustomError("amount is required");
@@ -263,6 +264,9 @@ class WalletService {
 
         const user = await UserService.getOne(userId);
         if (!user.stripeAccountId) throw new CustomError("you have not setup a stripe connect account");
+
+        const stripeAccountStatus = await StripeService.getAccountStatus(user.stripeAccountId);
+        if (stripeAccountStatus !== "connected") throw new CustomError("setup your stripe connect account to withdraw");
 
         // Delete any existing withdrawal token
         const token = await Token.findOne({ userId, type: "withdraw_gild" });
@@ -332,7 +336,7 @@ class WalletService {
             await token.deleteOne({ session });
             await TransactionService.recordWithdrawal({ userId, amount: data.amount, walletId: wallet.id }, session);
 
-            await StripeUtil.payout(user.stripeAccountId, data.amount, "Gild Wallet Withdrawal");
+            await StripeUtil.payout(user.stripeAccountId as string, data.amount, "Gild Wallet Withdrawal");
         });
 
         return true;
