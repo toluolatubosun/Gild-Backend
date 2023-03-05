@@ -145,6 +145,13 @@ class WalletService {
         });
     }
 
+    /**
+     *
+     * @param senderId Sender ID
+     * @param receiverId Receiver ID, email or username
+     * @param amount Amount to transfer
+     * @returns Boolean
+     */
     async initializeTransfer(senderId: string, receiverId: string, amount: number) {
         const { default: UserService } = await import("./user.service");
         const { default: TransactionService } = await import("./transaction.service");
@@ -191,6 +198,49 @@ class WalletService {
             sourceId: "system",
             receiverId: sender.id
         });
+
+        return true;
+    }
+
+    /**
+     *
+     * @param senderId Sender ID
+     * @param receiverId Receiver ID, email or username
+     * @param amount Amount to transfer
+     * @returns Boolean
+     */
+    async resendTransferOTP(senderId: string, receiverId: string, amount: number) {
+        const { default: UserService } = await import("./user.service");
+
+        const receiver = await UserService.getUserById(receiverId);
+
+        const token = await Token.findOne({
+            userId: senderId,
+            type: "transfer_gild",
+            "gildTransfer.amount": amount,
+            "gildTransfer.receiverId": receiver.id
+        });
+
+        if (!token) throw new CustomError("invalid transfer");
+        if (token.expiresAt.getTime() - Date.now() > ms("10m")) throw new CustomError("Wait 5 minutes before resending OTP");
+
+        await token.deleteOne();
+
+        const nanoidOTP = customAlphabet("012345789", 6);
+        const OTP = nanoidOTP();
+        const hashedOTP = await bcrypt.hash(OTP, BCRYPT_SALT);
+
+        await new Token({
+            token: hashedOTP,
+            userId: senderId,
+            type: "transfer_gild",
+            expiresAt: Date.now() + ms("15m"),
+            gildTransfer: { amount, receiverId: receiver.id }
+        }).save();
+
+        const sender = await UserService.getOne(senderId);
+
+        await new MailService(sender).sendTransferOTP(OTP);
 
         return true;
     }

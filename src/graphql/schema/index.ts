@@ -38,6 +38,7 @@ const typeDefs = `#graphql
 
         walletInitializeWithdrawal(amount: Int!): Boolean!
         walletCompleteWithdrawal(amount: Int!, OTP: String!): Boolean!
+        walletResendTransferOTP(receiverId: String!, amount: Int!): Boolean!
         walletInitializeTransfer(receiverId: String!, amount: Int!): Boolean!
         walletCompleteTransfer(receiverId: String!, amount: Int!, OTP: String!): Boolean!
         walletInitializeDeposit(amount: Int!, currencyCode: String!, cardId: String): String!
