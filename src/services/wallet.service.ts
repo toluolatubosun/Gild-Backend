@@ -348,6 +348,41 @@ class WalletService {
         return true;
     }
 
+    async resendWithdrawalOTP(userId: string, amount: number) {
+        const { default: UserService } = await import("./user.service");
+
+        const wallet = await this.getByUserId(userId);
+        const user = await UserService.getOne(userId);
+
+        const token = await Token.findOne({
+            userId,
+            type: "withdraw_gild",
+            "gildWithdrawal.amount": amount,
+            "gildWithdrawal.walletId": wallet.id
+        });
+
+        if (!token) throw new CustomError("invalid withdrawal");
+        if (token.expiresAt.getTime() - Date.now() > ms("10m")) throw new CustomError("Wait 5 minutes before resending OTP");
+
+        await token.deleteOne();
+
+        const nanoidOTP = customAlphabet("012345789", 6);
+        const OTP = nanoidOTP();
+        const hashedOTP = await bcrypt.hash(OTP, BCRYPT_SALT);
+
+        await new Token({
+            userId,
+            token: hashedOTP,
+            type: "withdraw_gild",
+            expiresAt: Date.now() + ms("15m"),
+            gildWithdrawal: { amount, walletId: wallet.id }
+        }).save();
+
+        await new MailService(user).sendWithdrawalOTP(OTP);
+
+        return true;
+    }
+
     async completeWithdrawal(userId: string, data: GildWithdrawalInput) {
         const { default: UserService } = await import("./user.service");
         const { default: TransactionService } = await import("./transaction.service");
