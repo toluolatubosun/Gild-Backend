@@ -76,7 +76,7 @@ class WalletService {
         };
     }
 
-    async initializeDeposit(userId: string, amount: number, currencyCode: string) {
+    async initializeDeposit(userId: string, amount: number, currencyCode: string, cardId?: string) {
         const { default: UserService } = await import("./user.service");
         const { default: CurrencyService } = await import("./currency.service");
         const { default: NotificationService } = await import("./notification.service");
@@ -87,7 +87,9 @@ class WalletService {
         if (!amount) throw new CustomError("amount is required");
         if (!Number.isInteger(amount)) throw new CustomError("Amount must be an integer");
         if (amount < 10) throw new CustomError("Minimum amount is 10");
+
         if (!currencyCode) throw new CustomError("currency is required");
+        if (currencyCode !== "USD") throw new CustomError("Only USD is supported for now");
 
         const currency = await CurrencyService.getByCode(currencyCode);
 
@@ -102,7 +104,7 @@ class WalletService {
             }
         };
 
-        const intent = await StripeUtil.purchaseGild(purchaseData);
+        const intent = await StripeUtil.purchaseGild(purchaseData, cardId);
 
         await NotificationService.create({
             sourceId: "system",

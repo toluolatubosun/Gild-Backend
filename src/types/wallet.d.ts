@@ -40,6 +40,7 @@ interface InitializeTransferArgs {
 interface InitializeDepositArgs {
     amount: number;
     currencyCode: string;
+    cardId: string;
 }
 
 interface CompleteTransferArgs {

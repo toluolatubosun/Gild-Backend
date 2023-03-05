@@ -123,17 +123,14 @@ class StripeUtil {
         });
     }
 
-    async purchaseGild(data: PurchaseGildInput) {
+    async purchaseGild(data: PurchaseGildInput, cardId?: string) {
         const customer = await this.retrieveCustomer(data.user.name, data.user.email);
 
-        const paymentIntent = await this.stripe.paymentIntents.create({
+        const paymentIntentParams: Stripe.PaymentIntentCreateParams = {
             amount: data.price,
             customer: customer.id,
             currency: data.currency,
             description: `${data.user.name}<${data.user.email}> purchased ${data.amount} Gild Tokens`,
-            automatic_payment_methods: {
-                enabled: true
-            },
             metadata: {
                 source: APP_NAME,
                 price: data.price,
@@ -143,13 +140,33 @@ class StripeUtil {
                 currency: data.currency,
                 wallet_id: data.walletId,
                 customer_id: customer.id
-            },
-            payment_method_options: {
-                card: {
-                    setup_future_usage: "off_session"
-                }
             }
-        });
+        };
+
+        let paymentIntent: Stripe.PaymentIntent;
+
+        if (!cardId) {
+            // Setup Payment Intent to accept payment and save the card
+            paymentIntent = await this.stripe.paymentIntents.create({
+                ...paymentIntentParams,
+                automatic_payment_methods: {
+                    enabled: true
+                },
+                payment_method_options: {
+                    card: {
+                        setup_future_usage: "off_session"
+                    }
+                }
+            });
+        } else {
+            // Setup Payment Intent to charge the pre-saved card
+            paymentIntent = await this.stripe.paymentIntents.create({
+                ...paymentIntentParams,
+                confirm: true, // remove this line if off_session is false
+                off_session: true,
+                payment_method: cardId
+            });
+        }
 
         return paymentIntent;
     }
