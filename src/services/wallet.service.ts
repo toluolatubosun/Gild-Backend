@@ -88,9 +88,6 @@ class WalletService {
         if (!Number.isInteger(amount)) throw new CustomError("Amount must be an integer");
         if (amount < 10) throw new CustomError("Minimum amount is 10");
 
-        if (!currencyCode) throw new CustomError("currency is required");
-        if (currencyCode !== "USD") throw new CustomError("Only USD is supported for now");
-
         const currency = await CurrencyService.getByCode(currencyCode);
 
         const purchaseData = {
