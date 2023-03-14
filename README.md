@@ -27,7 +27,7 @@ If you are making use of a mongoDB server locally you need to initialize a repli
 npm install run-rs -g
 
 # Initialize a replica set using your local mongoDB server
-run-rs --mongod --shell --keep --portStart 27000
+run-rs --mongod --host 127.0.0.1 --shell --keep --portStart  27000
 
 ```
 
