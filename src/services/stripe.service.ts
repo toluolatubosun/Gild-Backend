@@ -9,20 +9,21 @@ class UserService {
         if (user.stripeAccountId) throw new CustomError("user already has a linked stripe account");
 
         const account = await StripeUtil.createExpressAccount();
-        const accountLink = await StripeUtil.createAccountLink(account.id);
-
         await UserService.addStripeAccountId(user.id, account.id);
 
-        return accountLink.url;
+        return account.id;
     }
 
     async getAccountSetupLink(userId: string) {
         const { default: UserService } = await import("./user.service");
 
+        let accountId: string;
         const user = await UserService.getOne(userId);
-        if (!user.stripeAccountId) return await this.createExpressAccount(userId);
 
-        const accountLink = await StripeUtil.createAccountLink(user.stripeAccountId);
+        if (!user.stripeAccountId) accountId = await this.createExpressAccount(userId);
+        else accountId = user.stripeAccountId;
+
+        const accountLink = await StripeUtil.createAccountLink(accountId);
 
         return accountLink.url;
     }

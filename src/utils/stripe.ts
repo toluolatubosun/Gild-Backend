@@ -16,7 +16,7 @@ class StripeUtil {
         const account = await this.stripe.accounts.create({
             type: "express",
             business_type: "individual",
-            business_profile: { url: `${baseURL}/dashboard/` }
+            business_profile: { url: `${baseURL}/app/withdraw/` }
         });
 
         return account;
@@ -27,8 +27,8 @@ class StripeUtil {
         const accountLink = await this.stripe.accountLinks.create({
             account: accountId,
             type: "account_onboarding",
-            return_url: `${URL.CLIENT_URL}/dashboard`,
-            refresh_url: `${URL.CLIENT_URL}/dashboard`
+            return_url: `${URL.CLIENT_URL}/app/withdraw/`,
+            refresh_url: `${URL.CLIENT_URL}/app/withdraw/`
         });
 
         return accountLink;
