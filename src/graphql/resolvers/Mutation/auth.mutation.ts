@@ -9,6 +9,9 @@ export default {
     authLogin: async (_: any, { input }: AuthLoginArgs, __: Context): Promise<{ user: IUser; token: AuthToken }> => {
         return await AuthService.login(input);
     },
+    authLoginWithGoogle: async (_: any, { token }: { token: string }, __: Context): Promise<{ user: IUser; token: AuthToken }> => {
+        return await AuthService.loginWithGoogle(token);
+    },
     authRegister: async (_: any, { input, businessData }: AuthRegisterArgs, __: Context): Promise<{ user: IUser; token: AuthToken }> => {
         return await AuthService.register(input, businessData);
     },

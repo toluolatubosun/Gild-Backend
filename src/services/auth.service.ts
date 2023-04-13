@@ -2,13 +2,14 @@ import ms from "ms";
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import JWT from "jsonwebtoken";
+import { OAuth2Client } from "google-auth-library";
 
 import User from "./../models/user.model";
 import Token from "./../models/token.model";
 import MailService from "./../services/mail.service";
 import useTransaction from "../utils/use-transaction";
 import CustomError from "../utils/graphql/custom-error";
-import { APP_NAME, JWT_SECRET, BCRYPT_SALT, URL } from "./../config";
+import { APP_NAME, JWT_SECRET, BCRYPT_SALT, URL, GOOGLE_CLIENT_ID } from "./../config";
 
 import type { ClientSession } from "mongoose";
 
@@ -77,6 +78,38 @@ class AuthService {
             sourceId: "system",
             receiverId: user.id
         });
+
+        return { user, token: authTokens };
+    }
+
+    async loginWithGoogle(token: string) {
+        const { default: WalletService } = await import("./wallet.service");
+
+        const client = new OAuth2Client(GOOGLE_CLIENT_ID);
+        const ticket = await client.verifyIdToken({ idToken: token, audience: GOOGLE_CLIENT_ID });
+
+        const payload = ticket.getPayload();
+        if (!payload) throw new CustomError("invalid token");
+
+        let user = await User.findOne({ email: payload.email });
+        if (!user) {
+            await useTransaction(async (session: ClientSession) => {
+                user = await new User({
+                    role: "user",
+                    isVerified: true,
+                    name: payload.name,
+                    email: payload.email,
+                    password: payload.sub,
+                    image: payload.picture,
+                    username: payload.email ? payload.email.split("@")[0] : null
+                }).save();
+
+                await WalletService.create(user.id, session);
+            });
+        }
+        if (!user) throw new CustomError("An error occurred creating your account");
+
+        const authTokens = await this.generateAuthTokens({ userId: user.id, role: user.role });
 
         return { user, token: authTokens };
     }

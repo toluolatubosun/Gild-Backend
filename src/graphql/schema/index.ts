@@ -23,6 +23,7 @@ const typeDefs = `#graphql
     type Mutation {
         authLogin(input: LoginInput!): AuthPayload!
         authLogout(refreshToken: String!): Boolean!
+        authLoginWithGoogle(token: String!): AuthPayload!
         authRequestPasswordReset(email: String!): Boolean!
         authRefreshAccessToken(refreshToken: String!): String!
         authRequestEmailVerification(email: String!): Boolean!
