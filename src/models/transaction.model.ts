@@ -8,8 +8,17 @@ export interface ITransaction {
         receiverId: string;
     };
     depositInfo?: {
+        price: number;
         userId: string;
+        amount: number;
+        walletId: string;
+        currency: string;
         stripePaymentId: string;
+    };
+    withdrawalInfo?: {
+        userId: string;
+        amount: number;
+        walletId: string;
     };
 }
 
