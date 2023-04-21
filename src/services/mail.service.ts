@@ -1,8 +1,14 @@
 import nodemailer from "nodemailer";
 
-import { MAILER, APP_NAME } from "./../config";
+import { MAILER, APP_NAME, URL } from "./../config";
 import CustomError from "../utils/graphql/custom-error";
-import { emailVerificationTemplate, resetPasswordTemplate, transferOTPTemplate, withdrawalOTPTemplate } from "./../email-templates";
+import {
+    emailVerificationTemplate,
+    resetPasswordTemplate,
+    transferOTPTemplate,
+    withdrawalOTPTemplate,
+    accountCreationTemplate
+} from "./../email-templates";
 
 import type { IUser } from "./../models/user.model";
 
@@ -48,6 +54,16 @@ class MailService {
         const recipient = this.user.email;
         const subject = "Email Verification";
         const content = await emailVerificationTemplate(this.user.name, this.user.email, link);
+
+        return await this.send(subject, content, recipient);
+    }
+
+    async sendAccountCreationMail(password: string) {
+        const link = URL.CLIENT_URL + "/auth/login";
+
+        const recipient = this.user.email;
+        const subject = "Email Verification";
+        const content = await accountCreationTemplate(this.user.name, this.user.email, link, password);
 
         return await this.send(subject, content, recipient);
     }

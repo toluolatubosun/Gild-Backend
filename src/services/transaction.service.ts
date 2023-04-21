@@ -23,6 +23,8 @@ class TransactionService {
         return transfer;
     }
 
+    async getTransfers(pagination: PaginationInput) {}
+
     async recordDeposit(data: DepositRecordInput, session?: ClientSession) {
         if (!data.price) throw new CustomError("price not found");
         if (!data.amount) throw new CustomError("amount not found");
@@ -46,6 +48,8 @@ class TransactionService {
         return deposit;
     }
 
+    async getDeposits(pagination: PaginationInput) {}
+
     async recordWithdrawal(data: WithdrawalRecordInput, session?: ClientSession) {
         if (!data.amount) throw new CustomError("amount not found");
         if (!data.userId) throw new CustomError("userId not found");
@@ -62,6 +66,8 @@ class TransactionService {
 
         return withdrawal;
     }
+
+    async getWithdrawals(pagination: PaginationInput) {}
 
     async transferInLast24Hours(userId: string) {
         const last24Hours = await Transaction.find({

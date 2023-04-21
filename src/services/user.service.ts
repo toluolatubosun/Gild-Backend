@@ -1,20 +1,40 @@
 import { nanoid } from "nanoid";
 import { isValidObjectId } from "mongoose";
 
-import User from "./../models/user.model";
+import MailService from "./mail.service";
+import User, { IUser } from "./../models/user.model";
 import CloudinaryUtil from "../utils/cloudinary";
 import { APP_NAME, URL, MAILER } from "../config";
+import useTransaction from "../utils/use-transaction";
 import CustomError from "./../utils/graphql/custom-error";
 
+import type { ClientSession } from "mongoose";
 import type { UploadApiResponse } from "cloudinary";
 
 class UserService {
     async create(data: UserDataInput) {
+        const { default: WalletService } = await import("./wallet.service");
+
+        if (!data.name) throw new CustomError("name is required");
+        if (!data.email) throw new CustomError("email is required");
+        if (!data.username) throw new CustomError("username is required");
+        if (!data.password) throw new CustomError("password is required");
+
         if (data.image) {
             data.image = await this.uploadImage(data.image);
         }
 
-        return await new User(data).save();
+        let user: IUser;
+
+        await useTransaction(async (session: ClientSession) => {
+            user = await new User({ ...data, isVerified: true }).save({ session });
+
+            await WalletService.create(user.id, session);
+            await new MailService(user).sendAccountCreationMail(data.password as string);
+        });
+
+        // @ts-ignore
+        return user;
     }
 
     async createSystemUser() {

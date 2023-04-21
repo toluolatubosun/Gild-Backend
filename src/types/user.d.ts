@@ -5,7 +5,9 @@ interface UserDataInput {
     email?: string;
     image?: string;
     password?: string;
+    username?: string;
     role?: Role;
+    isActive?: boolean;
 }
 
 interface GetUserInput {

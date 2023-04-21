@@ -185,6 +185,7 @@ const typeDefs = `#graphql
         name: String
         email: String
         image: String
+        username: String
         password: String
     }
 
