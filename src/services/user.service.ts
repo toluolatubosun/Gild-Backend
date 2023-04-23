@@ -2,7 +2,7 @@ import { nanoid } from "nanoid";
 import { isValidObjectId } from "mongoose";
 
 import MailService from "./mail.service";
-import User, { IUser } from "./../models/user.model";
+import User from "./../models/user.model";
 import CloudinaryUtil from "../utils/cloudinary";
 import { APP_NAME, URL, MAILER } from "../config";
 import useTransaction from "../utils/use-transaction";
@@ -10,6 +10,7 @@ import CustomError from "./../utils/graphql/custom-error";
 
 import type { ClientSession } from "mongoose";
 import type { UploadApiResponse } from "cloudinary";
+import type { IUser } from "./../models/user.model";
 
 class UserService {
     async create(data: UserDataInput) {
@@ -25,6 +26,12 @@ class UserService {
         }
 
         let user: IUser;
+
+        const emailExists = await User.findOne({ email: data.email }, { id: 1 });
+        if (emailExists) throw new CustomError("email already exists");
+
+        const usernameExists = await User.findOne({ username: data.username }, { id: 1 });
+        if (usernameExists) throw new CustomError("username already exists");
 
         await useTransaction(async (session: ClientSession) => {
             user = await new User({ ...data, isVerified: true }).save({ session });
@@ -59,7 +66,9 @@ class UserService {
          * - if sorting in descending order (-1) then use $lt
          */
         const { limit = 5, next } = pagination;
-        let query = {};
+        let query = {
+            role: { $ne: "system" }
+        } as any;
 
         const total = await User.countDocuments(query);
 

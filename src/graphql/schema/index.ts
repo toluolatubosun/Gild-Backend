@@ -187,6 +187,7 @@ const typeDefs = `#graphql
         image: String
         username: String
         password: String
+        isActive: Boolean
     }
 
     input UserUpdateInput {
