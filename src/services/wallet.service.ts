@@ -79,14 +79,17 @@ class WalletService {
     async initializeDeposit(userId: string, amount: number, currencyCode: string, cardId?: string) {
         const { default: UserService } = await import("./user.service");
         const { default: CurrencyService } = await import("./currency.service");
+        const { default: SettingsService } = await import("./settings.service");
         const { default: NotificationService } = await import("./notification.service");
 
         const user = await UserService.getOne(userId);
         const wallet = await this.getByUserId(userId);
+        const systemSettings = await SettingsService.getSettings();
 
         if (!amount) throw new CustomError("amount is required");
         if (!Number.isInteger(amount)) throw new CustomError("Amount must be an integer");
-        if (amount < 10) throw new CustomError("Minimum amount is 10");
+        if (amount < systemSettings.minimumDeposit) throw new CustomError(`Minimum deposit is ${systemSettings.minimumDeposit}`);
+        if (amount > systemSettings.maximumDeposit) throw new CustomError(`Maximum deposit is ${systemSettings.maximumDeposit}`);
 
         const currency = await CurrencyService.getByCode(currencyCode);
 
@@ -151,6 +154,7 @@ class WalletService {
      */
     async initializeTransfer(senderId: string, receiverId: string, amount: number) {
         const { default: UserService } = await import("./user.service");
+        const { default: SettingsService } = await import("./settings.service");
         const { default: TransactionService } = await import("./transaction.service");
         const { default: NotificationService } = await import("./notification.service");
 
@@ -159,17 +163,19 @@ class WalletService {
 
         const senderWallet = await this.getByUserId(sender.id);
 
+        const systemSettings = await SettingsService.getSettings();
+
         if (sender.id === receiver.id) throw new CustomError("invalid transfer");
         if (senderWallet.balance < amount) throw new CustomError("insufficient funds");
 
         const last24Hours = await TransactionService.transferInLast24Hours(sender.id);
-        if (last24Hours.count >= 3) throw new CustomError("you have reached the maximum number of transfers per day");
-        if (last24Hours.totalAmount + amount > 1000) throw new CustomError("you have reached the maximum amount of transfers per day");
+        if (last24Hours.count >= systemSettings.maximumDailyTransfer)
+            throw new CustomError("you have reached the maximum number of transfers per day");
 
         if (!amount) throw new CustomError("amount is required");
         if (!Number.isInteger(amount)) throw new CustomError("amount must be an integer");
-        if (amount < 10) throw new CustomError("minimum transfer is 10 Gild tokens per transaction");
-        if (amount > 250) throw new CustomError("maximum transfer is 250 Gild tokens per transaction");
+        if (amount < systemSettings.minimumTransfer) throw new CustomError(`minimum transfer is ${systemSettings.minimumTransfer}`);
+        if (amount > systemSettings.maximumTransfer) throw new CustomError(`maximum transfer is ${systemSettings.maximumTransfer}`);
 
         const token = await Token.findOne({ userId: sender.id, type: "transfer_gild" });
         if (token) await token.deleteOne();
@@ -244,6 +250,7 @@ class WalletService {
 
     async completeTransfer(senderId: string, data: GildTransferInput) {
         const { default: UserService } = await import("./user.service");
+        const { default: SettingsService } = await import("./settings.service");
         const { default: TransactionService } = await import("./transaction.service");
         const { default: NotificationService } = await import("./notification.service");
 
@@ -256,6 +263,8 @@ class WalletService {
 
         const receiver = await UserService.getUserById(data.receiverId);
         const receiverWallet = await this.getByUserId(receiver.id);
+
+        const systemSettings = await SettingsService.getSettings();
 
         const token = await Token.findOne({
             userId: senderId,
@@ -271,8 +280,8 @@ class WalletService {
         if (senderWallet.balance < data.amount) throw new CustomError("insufficient funds");
 
         const last24Hours = await TransactionService.transferInLast24Hours(senderId);
-        if (last24Hours.count >= 3) throw new CustomError("you have reached the maximum number of transfers per day");
-        if (last24Hours.totalAmount + data.amount > 1000) throw new CustomError("you have reached the maximum amount of transfers per day");
+        if (last24Hours.count >= systemSettings.maximumDailyTransfer)
+            throw new CustomError("you have reached the maximum number of transfers per day");
 
         await useTransaction(async (session: ClientSession) => {
             await Wallet.findOneAndUpdate({ _id: senderWallet.id }, { balance: senderWallet.balance - data.amount }, { session });
@@ -302,11 +311,15 @@ class WalletService {
     async initializeWithdrawal(userId: string, amount: number) {
         const { default: UserService } = await import("./user.service");
         const { default: StripeService } = await import("./stripe.service");
+        const { default: SettingsService } = await import("./settings.service");
         const { default: NotificationService } = await import("./notification.service");
+
+        const systemSettings = await SettingsService.getSettings();
 
         if (!amount) throw new CustomError("amount is required");
         if (!Number.isInteger(amount)) throw new CustomError("Amount must be an integer");
-        if (amount < 50) throw new CustomError("Minimum amount is 50");
+        if (amount < systemSettings.minimumWithdrawal) throw new CustomError(`Minimum withdrawal is ${systemSettings.minimumWithdrawal} GILD`);
+        if (amount > systemSettings.maximumWithdrawal) throw new CustomError(`Maximum withdrawal is ${systemSettings.maximumWithdrawal} GILD`);
 
         const wallet = await this.getByUserId(userId);
         if (wallet.balance < amount) throw new CustomError("insufficient funds");

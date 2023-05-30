@@ -23,7 +23,34 @@ class TransactionService {
         return transfer;
     }
 
-    async getTransfers(pagination: PaginationInput) {}
+    async getTransactionStats() {
+        const transfers = await Transaction.find({ action: "transfer" }, { transferInfo: 1 });
+
+        let totalTransferAmount = 0;
+        let totalTransferCount = transfers.length;
+        for (const transfer of transfers) {
+            if (transfer.transferInfo) {
+                totalTransferAmount += transfer.transferInfo.amount;
+            }
+        }
+
+        const deposits = await Transaction.find({ action: "deposit" }, { depositInfo: 1 });
+
+        let totalDepositAmount = 0;
+        let totalDepositCount = deposits.length;
+        for (const deposit of deposits) {
+            if (deposit.depositInfo) {
+                totalDepositAmount += deposit.depositInfo.amount;
+            }
+        }
+
+        return {
+            totalDepositCount,
+            totalDepositAmount,
+            totalTransferCount,
+            totalTransferAmount
+        };
+    }
 
     async recordDeposit(data: DepositRecordInput, session?: ClientSession) {
         if (!data.price) throw new CustomError("price not found");
@@ -48,8 +75,6 @@ class TransactionService {
         return deposit;
     }
 
-    async getDeposits(pagination: PaginationInput) {}
-
     async recordWithdrawal(data: WithdrawalRecordInput, session?: ClientSession) {
         if (!data.amount) throw new CustomError("amount not found");
         if (!data.userId) throw new CustomError("userId not found");
@@ -66,8 +91,6 @@ class TransactionService {
 
         return withdrawal;
     }
-
-    async getWithdrawals(pagination: PaginationInput) {}
 
     async transferInLast24Hours(userId: string) {
         const last24Hours = await Transaction.find({

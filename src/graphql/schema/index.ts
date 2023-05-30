@@ -14,6 +14,8 @@ const typeDefs = `#graphql
         notifications(pagination: PaginationInput!): NotificationsPayload!
         notificationGetAllMine(pagination: PaginationInput!): NotificationsPayload!
 
+        settings: Settings!
+
         currencies: [Currency!]!
         currencyGetByCode(code: String!): Currency!
 
@@ -51,6 +53,8 @@ const typeDefs = `#graphql
         stripeSetupExpressAccount: String!
         stripeLoginToExpressAccount: String!
         stripeDeleteMyCard(cardId: String!): Boolean!
+
+        settingsUpdate(input: SystemSettingsInput!): Settings!
     }
 
     type User {
@@ -152,6 +156,17 @@ const typeDefs = `#graphql
         pagination: PaginationPayload!
     }
 
+    type Settings {
+        id: ID!
+        minimumDeposit: Int!
+        maximumDeposit: Int!
+        minimumTransfer: Int!
+        maximumTransfer: Int!
+        minimumWithdrawal: Int!
+        maximumWithdrawal: Int!
+        maximumDailyTransfer: Int!    
+    }
+
     # INPUT TYPES
 
     input PaginationInput {
@@ -198,6 +213,16 @@ const typeDefs = `#graphql
     input UserInfoInput {
         userId: ID
         username: String
+    }
+
+    input SystemSettingsInput {
+        minimumDeposit: Int
+        maximumDeposit: Int
+        minimumTransfer: Int
+        maximumTransfer: Int
+        minimumWithdrawal: Int
+        maximumWithdrawal: Int
+        maximumDailyTransfer: Int
     }
 
     # ENUM TYPES
