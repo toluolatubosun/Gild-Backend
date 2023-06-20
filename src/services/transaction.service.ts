@@ -44,11 +44,23 @@ class TransactionService {
             }
         }
 
+        const withdrawals = await Transaction.find({ action: "withdrawal" }, { withdrawalInfo: 1 });
+
+        let totalWithdrawalAmount = 0;
+        let totalWithdrawalCount = withdrawals.length;
+        for (const withdrawal of withdrawals) {
+            if (withdrawal.withdrawalInfo) {
+                totalWithdrawalAmount += withdrawal.withdrawalInfo.amount
+            }
+        }
+
         return {
             totalDepositCount,
             totalDepositAmount,
             totalTransferCount,
-            totalTransferAmount
+            totalTransferAmount,
+            totalWithdrawalCount,
+            totalWithdrawalAmount
         };
     }
 

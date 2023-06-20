@@ -16,6 +16,8 @@ const typeDefs = `#graphql
 
         settings: Settings!
 
+        transactionsGetStats: TransactionsStats!
+
         currencies: [Currency!]!
         currencyGetByCode(code: String!): Currency!
 
@@ -165,6 +167,15 @@ const typeDefs = `#graphql
         minimumWithdrawal: Int!
         maximumWithdrawal: Int!
         maximumDailyTransfer: Int!    
+    }
+
+    type TransactionsStats {
+        totalDepositCount: Int!
+        totalDepositAmount: Int!
+        totalTransferCount: Int!
+        totalTransferAmount: Int!
+        totalWithdrawalCount: Int!
+        totalWithdrawalAmount: Int!
     }
 
     # INPUT TYPES

@@ -4,6 +4,7 @@ import walletQueries from "./wallet.query";
 import stripeQueries from "./stripe.query";
 import currencyQueries from "./currency.query";
 import settingsQueries from "./settings.query";
+import transactionQueries from "./transaction.query";
 import notificationQueries from "./notification.query";
 
 export default {
@@ -13,5 +14,6 @@ export default {
     ...stripeQueries,
     ...currencyQueries,
     ...settingsQueries,
+    ...transactionQueries,
     ...notificationQueries
 };

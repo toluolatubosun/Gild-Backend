@@ -18,3 +18,12 @@ interface WithdrawalRecordInput {
     userId: string;
     walletId: string;
 }
+
+interface TransactionsStats {
+    totalDepositCount: number;
+    totalDepositAmount: number;
+    totalTransferCount: number;
+    totalTransferAmount: number;
+    totalWithdrawalCount: number;
+    totalWithdrawalAmount: number;
+}
