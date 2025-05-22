@@ -5,7 +5,7 @@ International money transfer platform
 ## About
 My B.Sc. Computer Science, Final Year Project 
 
-Live Demo: https://usegild.com/
+Live Demo: https://usegild.toluolatubosun.com/
 Frontend Repo: https://github.com/toluolatubosun/Gild-Frontend
 
 ## Technologies
